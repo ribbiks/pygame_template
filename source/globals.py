@@ -1,6 +1,6 @@
 
 GAME_VERS = 'Blah v0.0'
-FRAMERATE = 60
+FRAMERATE = 30
 RES       = (480,270)
 GRID_SIZE = 16
 
@@ -14,37 +14,62 @@ MAX_UPDATE_FRAMES = 8
 # number of consecutive frames to use for estimating fps
 NUM_FRAMES_FOR_FPS = MAX_UPDATE_FRAMES + 30
 
+# basically a tolerance for floating point precision when determining equalities
+SMALL_NUMBER = 1e-6
+
+
 class PlayerInput:
-	ESCAPE         = 0
-	LEFT_CLICK_DN  = 1
-	LEFT_CLICK_UP  = 2
-	RIGHT_CLICK_DN = 3
-	RIGHT_CLICK_UP = 4
-	BUTTON_LEFT    = 5
-	BUTTON_RIGHT   = 6
-	BUTTON_DOWN    = 7
-	BUTTON_UP      = 8
-	BUTTON_A       = 9
-	BUTTON_B       = 10
-	BUTTON_X       = 11
-	BUTTON_Y       = 12
-	BUTTON_L1      = 13
-	BUTTON_L2      = 14
-	BUTTON_R1      = 15
-	BUTTON_R2      = 16
-	SELECT         = 17
-	START          = 18
+    ESCAPE         = 0
+    LEFT_CLICK_DN  = 1
+    LEFT_CLICK_UP  = 2
+    RIGHT_CLICK_DN = 3
+    RIGHT_CLICK_UP = 4
+    BUTTON_LEFT    = 5
+    BUTTON_RIGHT   = 6
+    BUTTON_DOWN    = 7
+    BUTTON_UP      = 8
+    BUTTON_A       = 9
+    BUTTON_B       = 10
+    BUTTON_X       = 11
+    BUTTON_Y       = 12
+    BUTTON_L1      = 13
+    BUTTON_L2      = 14
+    BUTTON_R1      = 15
+    BUTTON_R2      = 16
+    SELECT         = 17
+    START          = 18
+
 
 NUM_INPUTS = len([n for n in dir(PlayerInput) if n[:2] != '__'])
 
+
+KEYS_THAT_CAN_BE_HELD_ACROSS_FRAMES = [PlayerInput.BUTTON_LEFT,
+                                       PlayerInput.BUTTON_RIGHT,
+                                       PlayerInput.BUTTON_DOWN,
+                                       PlayerInput.BUTTON_UP]
+
+
+JOY_BUTTON_REQUIRES_LIFT_BEFORE_REFIRE = [PlayerInput.BUTTON_A,
+                                          PlayerInput.BUTTON_B,
+                                          PlayerInput.BUTTON_X,
+                                          PlayerInput.BUTTON_Y,
+                                          PlayerInput.BUTTON_L1,
+                                          PlayerInput.BUTTON_L2,
+                                          PlayerInput.BUTTON_R1,
+                                          PlayerInput.BUTTON_R2,
+                                          PlayerInput.SELECT,
+                                          PlayerInput.START]
+
+
 class Color:
-	BLACK       = (  0,  0,  0)
-	WHITE       = (255,255,255)
-	GRID_MAJOR  = ( 36, 36, 36)
-	GRID_MINOR  = ( 22, 22, 22)
+    BLACK       = (  0,  0,  0)
+    WHITE       = (255,255,255)
+    GRID_MAJOR  = ( 36, 36, 36)
+    GRID_MINOR  = ( 22, 22, 22)
+    HITBOX      = (200, 200, 100)   # player debug hitbox
+
 
 class GameStateNum:
-	MAIN_MENU = 0
-	GAME      = 1
-	PAUSE     = 2
-	
+    MAIN_MENU = 0
+    GAME      = 1
+    PAUSE     = 2
