@@ -4,6 +4,7 @@ import asyncio
 import pygame as pg
 import os
 import pathlib
+import platform
 
 from collections import deque
 from pygame.math import Vector2 as v2
@@ -20,6 +21,11 @@ from source.util       import draw_fullscreen_border
 
 # are we making the web version?
 PYGBAG = False
+if platform.system().lower() == "emscripten":
+    # Note that this stuff only resolves when running in a web context
+    if __WASM__ and __EMSCRIPTEN__ and __EMSCRIPTEN__.is_browser:
+        from __EMSCRIPTEN__ import window
+    PYGBAG = True
 
 
 class GameRunner:
@@ -35,37 +41,42 @@ class GameRunner:
         # DISPLAY STUFF:
         #
         # screen      = the main low-res screen object that everything will be blitted to
-        # screen_out  = resized surface that is integer-scaled up. this is final rendered output in windowed mode
+        # screen_out  = resized surface that is integer-scaled up. this is final output in windowed mode
         # screen_full = in fullscreen mode screen_out will be rendered in the center of this surface
         #
         self.screen      = pg.Surface(RES)
         self.screen_out  = None
         self.screen_full = None
         #
-        display_sizes = pg.display.get_desktop_sizes()
-        if DISPLAY_NUM >= len(display_sizes) or DISPLAY_NUM < 0:
-            print('Error: invalid display number')
-            exit(1)
-        my_display_size = display_sizes[DISPLAY_NUM]
-        if SCALE_FACTOR <= 0:
-            display_scale_factor = 1
-            while RES[0]*(display_scale_factor+1) <= my_display_size[0] and RES[1]*(display_scale_factor+1) <= my_display_size[1]:
-                display_scale_factor += 1
-        else:
-            display_scale_factor = SCALE_FACTOR
-        scaled_res = (RES[0]*display_scale_factor, RES[1]*display_scale_factor)
         self.fullscreen_offset = (0,0)
         self.is_fullscreen     = RUN_FULLSCREEN
-        if self.is_fullscreen:
-            self.screen_full = pg.display.set_mode(size=my_display_size, flags=pg.FULLSCREEN, depth=0, display=DISPLAY_NUM, vsync=0)
-            self.screen_out  = pg.Surface(scaled_res)
-            fullscreen_size  = self.screen_full.get_size()
-            self.fullscreen_offset = (int((fullscreen_size[0]-scaled_res[0])/2), int((fullscreen_size[1]-scaled_res[1])/2))
-        else:
-            # make room for top bar if needed (which is 30px on mac)
-            if scaled_res[1] >= my_display_size[1] - 30:
-                scaled_res = (RES[0]*(display_scale_factor-1), RES[1]*(display_scale_factor-1))
+        #
+        if PYGBAG:
+            scaled_res = (RES[0]*SCALE_FACTOR, RES[1]*SCALE_FACTOR)
             self.screen_out = pg.display.set_mode(size=scaled_res, flags=0, depth=0, display=DISPLAY_NUM, vsync=0)
+        else:
+            display_sizes = pg.display.get_desktop_sizes()
+            if DISPLAY_NUM >= len(display_sizes) or DISPLAY_NUM < 0:
+                print('Error: invalid display number')
+                exit(1)
+            my_display_size = display_sizes[DISPLAY_NUM]
+            if SCALE_FACTOR <= 0:
+                display_scale_factor = 1
+                while RES[0]*(display_scale_factor+1) <= my_display_size[0] and RES[1]*(display_scale_factor+1) <= my_display_size[1]:
+                    display_scale_factor += 1
+            else:
+                display_scale_factor = SCALE_FACTOR
+            scaled_res = (RES[0]*display_scale_factor, RES[1]*display_scale_factor)
+            if self.is_fullscreen:
+                self.screen_full = pg.display.set_mode(size=my_display_size, flags=pg.FULLSCREEN, depth=0, display=DISPLAY_NUM, vsync=0)
+                self.screen_out  = pg.Surface(scaled_res)
+                fullscreen_size  = self.screen_full.get_size()
+                self.fullscreen_offset = (int((fullscreen_size[0]-scaled_res[0])/2), int((fullscreen_size[1]-scaled_res[1])/2))
+            else:
+                # make room for top bar if needed (which is 30px on mac)
+                if scaled_res[1] >= my_display_size[1] - 30:
+                    scaled_res = (RES[0]*(display_scale_factor-1), RES[1]*(display_scale_factor-1))
+                self.screen_out = pg.display.set_mode(size=scaled_res, flags=0, depth=0, display=DISPLAY_NUM, vsync=0)
         #
         self.trans_fade = pg.Surface(RES)
         self.trans_fade.fill(Color.BLACK)
@@ -206,7 +217,7 @@ class GameRunner:
 if __name__ == '__main__':
     try:
         if PYGBAG:
-            [DISPLAY_NUM, SCALE_FACTOR, RUN_FULLSCREEN] = [0, 2, False]
+            [DISPLAY_NUM, SCALE_FACTOR, RUN_FULLSCREEN] = [0, 1, False]
             BASE_DIR = ''
         else:
             [DISPLAY_NUM, SCALE_FACTOR, RUN_FULLSCREEN] = get_input_args()

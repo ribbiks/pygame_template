@@ -188,3 +188,14 @@ JOYSTICK_BUTTON_TO_INPUT = [PlayerInput.BUTTON_A,
                             None,
                             PlayerInput.SELECT,
                             PlayerInput.START]
+
+JOY_BUTTON_REQUIRES_LIFT_BEFORE_REFIRE = [PlayerInput.BUTTON_A,
+                                          PlayerInput.BUTTON_B,
+                                          PlayerInput.BUTTON_X,
+                                          PlayerInput.BUTTON_Y,
+                                          PlayerInput.BUTTON_L1,
+                                          PlayerInput.BUTTON_L2,
+                                          PlayerInput.BUTTON_R1,
+                                          PlayerInput.BUTTON_R2,
+                                          PlayerInput.SELECT,
+                                          PlayerInput.START]

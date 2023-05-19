@@ -43,24 +43,6 @@ class PlayerInput:
 NUM_INPUTS = len([n for n in dir(PlayerInput) if n[:2] != '__'])
 
 
-KEYS_THAT_CAN_BE_HELD_ACROSS_FRAMES = [PlayerInput.BUTTON_LEFT,
-                                       PlayerInput.BUTTON_RIGHT,
-                                       PlayerInput.BUTTON_DOWN,
-                                       PlayerInput.BUTTON_UP]
-
-
-JOY_BUTTON_REQUIRES_LIFT_BEFORE_REFIRE = [PlayerInput.BUTTON_A,
-                                          PlayerInput.BUTTON_B,
-                                          PlayerInput.BUTTON_X,
-                                          PlayerInput.BUTTON_Y,
-                                          PlayerInput.BUTTON_L1,
-                                          PlayerInput.BUTTON_L2,
-                                          PlayerInput.BUTTON_R1,
-                                          PlayerInput.BUTTON_R2,
-                                          PlayerInput.SELECT,
-                                          PlayerInput.START]
-
-
 class Color:
     BLACK       = (  0,  0,  0)
     WHITE       = (255,255,255)
