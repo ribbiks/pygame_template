@@ -97,22 +97,28 @@ class InputManager:
         #
         for joystick in self.joysticks.values():
             #
-            axes = joystick.get_numaxes()
-            if axes != len(JOYSTICK_AXIS_TO_BUTTON):
-                print('What kind of controller are you? # axes =', axes)
-                exit(1)
-            for i in range(axes):
+            num_axes    = joystick.get_numaxes()
+            num_hats    = joystick.get_numhats()
+            num_buttons = joystick.get_numbuttons()
+            (joy_axis_layout, joy_button_layout) = get_joystick_layout(num_axes, num_buttons, num_hats)
+            #
+            for i in range(len(joy_axis_layout)):
                 axis = joystick.get_axis(i)
                 if abs(axis) >= JOYSTICK_AXIS_THRESH:
-                    if axis < 0 and JOYSTICK_AXIS_TO_BUTTON[i][0] is not None:
-                        all_inputs[JOYSTICK_AXIS_TO_BUTTON[i][0]] = True
+                    if axis < 0 and joy_axis_layout[i][0] is not None:
+                        all_inputs[joy_axis_layout[i][0]] = True
                         self.recent_input_was_joystick = True
-                    if axis > 0 and JOYSTICK_AXIS_TO_BUTTON[i][1] is not None:
-                        all_inputs[JOYSTICK_AXIS_TO_BUTTON[i][1]] = True
+                    if axis > 0 and joy_axis_layout[i][1] is not None:
+                        all_inputs[joy_axis_layout[i][1]] = True
                         self.recent_input_was_joystick = True
             #
-            numhats = joystick.get_numhats()
-            if numhats >= 1:
+            for i in range(len(joy_button_layout)):
+                button = joystick.get_button(i)
+                if button == 1 and joy_button_layout[i] is not None:
+                    all_inputs[joy_button_layout[i]] = True
+                    self.recent_input_was_joystick = True
+            #
+            if num_hats >= 1:
                 hat = joystick.get_hat(0)
                 if hat[0] == -1:
                     all_inputs[PlayerInput.BUTTON_LEFT] = True
@@ -125,16 +131,6 @@ class InputManager:
                     self.recent_input_was_joystick = True
                 elif hat[1] == 1:
                     all_inputs[PlayerInput.BUTTON_UP] = True
-                    self.recent_input_was_joystick = True
-            #
-            buttons = joystick.get_numbuttons()
-            if buttons != len(JOYSTICK_BUTTON_TO_INPUT):
-                print('What kind of controller are you? # buttons =', buttons)
-                exit(1)
-            for i in range(buttons):
-                button = joystick.get_button(i)
-                if button == 1 and JOYSTICK_BUTTON_TO_INPUT[i] is not None:
-                    all_inputs[JOYSTICK_BUTTON_TO_INPUT[i]] = True
                     self.recent_input_was_joystick = True
         #
         input_mask = [True]*NUM_INPUTS
@@ -161,33 +157,90 @@ def get_input_args():
     return [DISPLAY_NUM, SCALE_FACTOR, RUN_FULLSCREEN]
 
 
-#
-# axis 0: left-stick X
-# axis 1: left-stick Y
-# axis 2: L2            (positive only)
-# axis 3: right-stick X
-# axis 4: right-stick Y
-# axis 5: R2            (positive only)
-#
-JOYSTICK_AXIS_TO_BUTTON = [(PlayerInput.BUTTON_LEFT, PlayerInput.BUTTON_RIGHT),
+def get_joystick_layout(num_axes, num_buttons, num_hats):
+    #
+    # CONFIGURATION 1: [6 axes, 10 buttons, 1 hat] generic gamepad + pygame + MacOS13
+    #
+    # axis 0: left-stick X
+    # axis 1: left-stick Y
+    # axis 2: L2            (positive only)
+    # axis 3: right-stick X
+    # axis 4: right-stick Y
+    # axis 5: R2            (positive only)
+    #
+    # button 0: A
+    # button 1: B
+    # button 2: X
+    # button 3: Y
+    # button 4: L1
+    # button 5: R1
+    # button 6: left-stick-press
+    # button 7: right-stick-press
+    # button 8: select
+    # button 9: start
+    #
+    if (num_axes, num_buttons, num_hats) == (6, 10, 1):
+        joy_axis_layout = [(PlayerInput.BUTTON_LEFT, PlayerInput.BUTTON_RIGHT),
                            (PlayerInput.BUTTON_UP,   PlayerInput.BUTTON_DOWN),
                            (None, PlayerInput.BUTTON_L2),
                            (None, None),
                            (None, None),
                            (None, PlayerInput.BUTTON_R2)]
+        joy_button_layout = [PlayerInput.BUTTON_A,
+                             PlayerInput.BUTTON_B,
+                             PlayerInput.BUTTON_X,
+                             PlayerInput.BUTTON_Y,
+                             PlayerInput.BUTTON_L1,
+                             PlayerInput.BUTTON_R1,
+                             None,
+                             None,
+                             PlayerInput.SELECT,
+                             PlayerInput.START]
+    #
+    # CONFIGURATION 2: [4 axes, 12 buttons, 1 hat] generic gamepad + pygame + Windows10
+    #
+    # axis 0: left-stick X
+    # axis 1: left-stick Y
+    # axis 2: right-stick X
+    # axis 3: right-stick Y
+    #
+    # button 0: X
+    # button 1: A
+    # button 2: B
+    # button 3: Y
+    # button 4: L1
+    # button 5: R1
+    # button 6: L2
+    # button 7: R2
+    # button 8: select
+    # button 9: start
+    # button 10: left-stick-press
+    # button 11: right-stick-press
+    #
+    elif (num_axes, num_buttons, num_hats) == (4, 12, 1):
+        joy_axis_layout = [(PlayerInput.BUTTON_LEFT, PlayerInput.BUTTON_RIGHT),
+                           (PlayerInput.BUTTON_UP,   PlayerInput.BUTTON_DOWN),
+                           (None, None),
+                           (None, None)]
+        joy_button_layout = [PlayerInput.BUTTON_X,
+                             PlayerInput.BUTTON_A,
+                             PlayerInput.BUTTON_B,
+                             PlayerInput.BUTTON_Y,
+                             PlayerInput.BUTTON_L1,
+                             PlayerInput.BUTTON_R1,
+                             PlayerInput.BUTTON_L2,
+                             PlayerInput.BUTTON_R2,
+                             PlayerInput.SELECT,
+                             PlayerInput.START,
+                             None,
+                             None]
+    else:
+        print('Unknown controller type!', (num_axes, num_buttons, num_hats))
+        exit(1)
+    return (joy_axis_layout, joy_button_layout)
+
 
 JOYSTICK_AXIS_THRESH = 0.500
-
-JOYSTICK_BUTTON_TO_INPUT = [PlayerInput.BUTTON_A,
-                            PlayerInput.BUTTON_B,
-                            PlayerInput.BUTTON_X,
-                            PlayerInput.BUTTON_Y,
-                            PlayerInput.BUTTON_L1,
-                            PlayerInput.BUTTON_R1,
-                            None,
-                            None,
-                            PlayerInput.SELECT,
-                            PlayerInput.START]
 
 JOY_BUTTON_REQUIRES_LIFT_BEFORE_REFIRE = [PlayerInput.BUTTON_A,
                                           PlayerInput.BUTTON_B,
