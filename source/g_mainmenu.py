@@ -24,7 +24,7 @@ class MainMenu(GameState):
 
     def draw(self):
         screen = self.game_runner.screen
-        offset = self.game_runner.camera_pos
+        offset = self.game_runner.camera.pos
         #
         grid_offset = v2(offset.x % (2*GRID_SIZE), offset.y % (2*GRID_SIZE))
         draw_grid(screen, RES,   GRID_SIZE, grid_offset, Color.GRID_MINOR)

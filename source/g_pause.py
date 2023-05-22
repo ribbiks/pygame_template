@@ -31,7 +31,7 @@ class PauseMenu(GameState):
 
     def draw(self):
         screen = self.game_runner.screen
-        offset = self.game_runner.camera_pos
+        offset = self.game_runner.camera.pos
         if self.is_drawing:
             screen.blit(self.pause_fade, (0,0), special_flags=pg.BLEND_ALPHA_SDL2)
             self.game_runner.fonts['large_w'].render(screen, "pause menu!", v2(5,20), centered=False)

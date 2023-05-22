@@ -15,7 +15,12 @@ MAX_UPDATE_FRAMES = 8
 NUM_FRAMES_FOR_FPS = MAX_UPDATE_FRAMES + 30
 
 # basically a tolerance for floating point precision when determining equalities
-SMALL_NUMBER = 1e-6
+SMALL_NUMBER = 1e-3
+
+# used for various geometry
+ONE_OVER_ROOT2 = 0.707106781186
+
+MOUSE_TARGET_WEIGHT = 0.15
 
 
 class PlayerInput:
@@ -41,6 +46,7 @@ class PlayerInput:
 
 
 NUM_INPUTS = len([n for n in dir(PlayerInput) if n[:2] != '__'])
+INPUT_BUFF_SIZE = 32
 
 
 class Color:

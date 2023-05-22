@@ -9,6 +9,7 @@ import platform
 from collections import deque
 from pygame.math import Vector2 as v2
 
+from source.camera     import Camera
 from source.font       import Font
 from source.geometry   import value_clamp
 from source.globals    import *
@@ -85,9 +86,12 @@ class GameRunner:
         #
         self.input_manager = InputManager()
         self.player_inputs = None
-        self.player_object = Player(v2(128,128), 0)
+        self.input_buffer  = deque([[False]*NUM_INPUTS for n in range(INPUT_BUFF_SIZE)])
+        self.player_object = Player(v2(RES[0]//2, RES[1]//2))
         #
-        self.camera_pos       = v2(0,0)
+        self.camera = Camera(v2(0,0))
+        self.camera.set_bounds(0, 2*RES[0], 0, 2*RES[1])
+        #
         self.mouse_pos_screen = v2(0,0)
         self.mouse_pos_map    = v2(0,0)
         #
@@ -103,7 +107,8 @@ class GameRunner:
     #
     #
     def load_assets(self, BASE_DIR):
-        FONT_DIR = os.path.join(BASE_DIR, 'assets', 'font')
+        FONT_DIR   = os.path.join(BASE_DIR, 'assets', 'font')
+        SPRITE_DIR = os.path.join(BASE_DIR, 'assets', 'sprite')
         #
         small_font = os.path.join(FONT_DIR, 'small_font.png')
         large_font = os.path.join(FONT_DIR, 'large_font.png')
@@ -111,21 +116,25 @@ class GameRunner:
                       'small_w': Font(small_font, Color.WHITE),
                       'large_b': Font(large_font, Color.BLACK),
                       'large_w': Font(large_font, Color.WHITE)}
+        #
+        self.player_object.load_sprites(SPRITE_DIR)
 
     #
     #
     #
     def get_inputs(self):
         pg_events = pg.event.get()
-        self.player_inputs = self.input_manager.get_inputs_from_events(pg_events)
-        print([1*n for n in self.player_inputs])
+        self.input_buffer.popleft()
+        self.input_buffer.append(self.input_manager.get_inputs_from_events(pg_events))
+        self.player_inputs = self.input_buffer[-1]
+        #print([1*n for n in self.player_inputs])
         #
         (mx,my) = pg.mouse.get_pos()
         upscaled_size    = self.screen_out.get_size()
         mouse_rescale    = (RES[0]/upscaled_size[0], RES[1]/upscaled_size[1])
         self.mouse_pos_screen = v2(value_clamp(int((mx-self.fullscreen_offset[0])*mouse_rescale[0] + 0.5), 0, RES[0]),
                                    value_clamp(int((my-self.fullscreen_offset[1])*mouse_rescale[1] + 0.5), 0, RES[1]))
-        self.mouse_pos_map = self.mouse_pos_screen - self.camera_pos
+        self.mouse_pos_map = self.mouse_pos_screen - self.camera.pos
 
     #
     #
