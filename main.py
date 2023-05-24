@@ -4,7 +4,6 @@ import asyncio
 import pygame as pg
 import os
 import pathlib
-import platform
 
 from collections import deque
 from pygame.math import Vector2 as v2
@@ -18,15 +17,8 @@ from source.g_game     import Game
 from source.g_pause    import PauseMenu
 from source.input      import get_input_args, InputManager
 from source.player     import Player
+from source.savefile   import SaveFile
 from source.util       import draw_fullscreen_border
-
-# are we making the web version?
-PYGBAG = False
-if platform.system().lower() == "emscripten":
-    # Note that this stuff only resolves when running in a web context
-    if __WASM__ and __EMSCRIPTEN__ and __EMSCRIPTEN__.is_browser:
-        from __EMSCRIPTEN__ import window
-    PYGBAG = True
 
 
 class GameRunner:
@@ -96,6 +88,9 @@ class GameRunner:
         self.mouse_pos_map    = v2(0,0)
         #
         self.load_assets(BASE_DIR)
+        #
+        self.savefile = SaveFile(os.path.join(BASE_DIR, 'saves'))
+        self.current_save_slot = 0
         #
         self.states = [MainMenu(self), Game(self), PauseMenu(self)]
         self.current_states = [GameStateNum.MAIN_MENU]
@@ -218,6 +213,11 @@ class GameRunner:
                 self.previous_update_time = current_time
                 accumulator -= dt
                 current_frame += 1
+            if current_frame == 100:
+                self.savefile.insert_data('test',5)
+                self.savefile.save_data_to_disk(self.current_save_slot)
+            if current_frame == 200:
+                self.savefile.load_data_from_disk(self.current_save_slot)
             #if current_frame - prev_frame >= 1:
             #   print('updates:', current_frame - prev_frame)
             self.draw()

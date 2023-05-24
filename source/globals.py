@@ -1,8 +1,15 @@
+import platform
 
 GAME_VERS = 'Blah v0.0'
 FRAMERATE = 30
 RES       = (480,270)
 GRID_SIZE = 16
+
+# are we making the web version?
+PYGBAG = False
+if platform.system().lower() == "emscripten":
+    # Note that this stuff only resolves when running in a web context
+    PYGBAG = __WASM__ and __EMSCRIPTEN__ and __EMSCRIPTEN__.is_browser
 
 # opacity (out of 255) for fading to black during screen transitions
 # -- gamestate changes occur on the first instance of 255
