@@ -79,3 +79,30 @@ class SaveFile:
                     print(f"INFO: loaded data from {local_filepath}: {self.data}")
             else:
                 print(f"INFO: no save data found at {local_filepath}, fresh launch?")
+
+    def download_save_data_from_web_storage(self):
+        if PYGBAG:
+            self._js_code = """
+const download = () => (
+  Object.assign(document.createElement("a"), {
+    href: `data:application/JSON, ${encodeURIComponent(
+      JSON.stringify(
+        (function(){
+          const o = {};
+          for (const k of Object.keys(localStorage)){
+            o[k] = JSON.parse(localStorage[k])
+          }
+          return o
+        }())
+        , null, 2)
+    )}`,
+    download: "pygame_savefile",
+  }).click()
+)
+download()
+            """
+            try:
+                platform.window.eval(self._js_code)
+            except AttributeError:
+                print("ERROR: could not download window.localStorage")
+                traceback.print_exc()

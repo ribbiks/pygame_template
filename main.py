@@ -95,7 +95,11 @@ class GameRunner:
         self.states = [MainMenu(self), Game(self), PauseMenu(self)]
         self.current_states = [GameStateNum.MAIN_MENU]
         self.next_gamestate = []
-        #
+
+    #
+    #
+    #
+    def run(self):
         asyncio.run(self.main())
 
     #
@@ -213,11 +217,14 @@ class GameRunner:
                 self.previous_update_time = current_time
                 accumulator -= dt
                 current_frame += 1
-            if current_frame == 100:
-                self.savefile.insert_data('test',5)
-                self.savefile.save_data_to_disk(self.current_save_slot)
-            if current_frame == 200:
-                self.savefile.load_data_from_disk(self.current_save_slot)
+                #
+                if current_frame == 100:
+                    self.savefile.insert_data('test',5)
+                    self.savefile.save_data_to_disk(self.current_save_slot)
+                if current_frame == 200:
+                    self.savefile.load_data_from_disk(self.current_save_slot)
+                if current_frame == 300:
+                    self.savefile.download_save_data_from_web_storage()
             #if current_frame - prev_frame >= 1:
             #   print('updates:', current_frame - prev_frame)
             self.draw()
