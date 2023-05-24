@@ -224,7 +224,7 @@ class GameRunner:
                 if current_frame == 200:
                     self.savefile.load_data_from_disk(self.current_save_slot)
                 if current_frame == 300:
-                    self.savefile.download_save_data_from_web_storage()
+                    self.savefile.download_save_data_from_web_game()
             #if current_frame - prev_frame >= 1:
             #   print('updates:', current_frame - prev_frame)
             self.draw()

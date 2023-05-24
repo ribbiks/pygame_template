@@ -56,6 +56,7 @@ class SaveFile:
         if PYGBAG:
             blob_str = json.dumps(self.data)
             window.localStorage.setItem(self.save_key, blob_str)
+            print(f"INFO: saved data to window.localStorage at \"{self.save_key}\"")
         else:
             local_filepath = os.path.join(self.save_dir, self.save_key + '_' + str(save_slot) + '.json')
             action_str = "overwrote" if os.path.exists(local_filepath) else "created"
@@ -80,29 +81,28 @@ class SaveFile:
             else:
                 print(f"INFO: no save data found at {local_filepath}, fresh launch?")
 
-    def download_save_data_from_web_storage(self):
+    #
+    # not sure how reliable this is...
+    #
+    def download_save_data_from_web_game(self):
         if PYGBAG:
-            self._js_code = """
-const download = () => (
-  Object.assign(document.createElement("a"), {
-    href: `data:application/JSON, ${encodeURIComponent(
-      JSON.stringify(
-        (function(){
-          const o = {};
-          for (const k of Object.keys(localStorage)){
-            o[k] = JSON.parse(localStorage[k])
-          }
-          return o
-        }())
-        , null, 2)
-    )}`,
-    download: "pygame_savefile",
-  }).click()
-)
-download()
-            """
+            blob_str = json.dumps(self.data)
+            js_code  = "const download = () => (\n"
+            js_code += "  Object.assign(document.createElement(\"a\"), {\n"
+            js_code += "    href: `data:application/JSON, ${encodeURIComponent(\n"
+            js_code += "      JSON.stringify(\n"
+            js_code += "        (function(){\n"
+            js_code += "          const o = " + blob_str + ";\n"
+            js_code += "          return o\n"
+            js_code += "        }())\n"
+            js_code += "        , null, 2)\n"
+            js_code += "    )}`,\n"
+            js_code += "    download: \"" + self.save_key + "\",\n"
+            js_code += "  }).click()\n"
+            js_code += ")\n"
+            js_code += "download()\n"
             try:
-                platform.window.eval(self._js_code)
-            except AttributeError:
-                print("ERROR: could not download window.localStorage")
-                traceback.print_exc()
+                platform.window.eval(js_code)
+            except Exception as e:
+                print("ERROR: could not download save data.")
+                print(e)
