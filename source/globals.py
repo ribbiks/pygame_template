@@ -66,5 +66,6 @@ class Color:
 
 class GameStateNum:
     MAIN_MENU = 0
-    GAME      = 1
-    PAUSE     = 2
+    SAVE_MENU = 1
+    GAME      = 2
+    PAUSE     = 3

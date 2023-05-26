@@ -1,5 +1,6 @@
 import json
 import os
+import platform
 import traceback
 
 from source.globals import *
@@ -22,6 +23,7 @@ class SaveFile:
             self.save_dir = save_dir
             if not os.path.isdir(self.save_dir):
                 os.mkdir(self.save_dir)
+        self.waiting_for_uploaded_saves = False
 
     def copy_via_json_serialization(self, v):
         try:
@@ -82,9 +84,9 @@ class SaveFile:
                 print(f"INFO: no save data found at {local_filepath}, fresh launch?")
 
     #
-    # not sure how reliable this is...
     #
-    def download_save_data_from_web_game(self):
+    #
+    def download_save_data_from_web_to_disk(self):
         if PYGBAG:
             blob_str = json.dumps(self.data)
             js_code  = "const download = () => (\n"
@@ -106,3 +108,32 @@ class SaveFile:
             except Exception as e:
                 print("ERROR: could not download save data.")
                 print(e)
+
+    #
+    #
+    #
+    def upload_save_data_from_disk_to_web(self):
+        if PYGBAG:
+            js_code  = ""
+            js_code += "var canvas_obj = document.getElementById('canvas');\n"
+            js_code += "canvas_obj.setAttribute(\"onclick\",\"click_dlg();\");\n"
+            js_code += "\n"
+            js_code += "function click_dlg(){\n"
+            js_code += "  document.getElementById('upload_savefile').click();\n"
+            js_code += "  document.getElementById('canvas').removeAttribute(\"onclick\");\n"
+            js_code += "}\n"
+            try:
+                platform.window.eval(js_code)
+                self.waiting_for_uploaded_saves = True
+            except Exception as e:
+                print("ERROR: could not upload save data.")
+                print(e)
+                self.waiting_for_uploaded_saves = False
+
+    def check_webstorage_for_uploaded_save(self):
+        if PYGBAG and self.waiting_for_uploaded_saves:
+            blob_str = window.localStorage.getItem('uploaded_save_data')
+            if blob_str is not None:
+                print(f"INFO: successfully read uploaded save data: {blob_str}")
+                self.data = json.loads(blob_str)
+                self.waiting_for_uploaded_saves = False

@@ -17,7 +17,7 @@ class PauseMenu(GameState):
 
     def update(self):
         if self.accepting_inputs:
-            if self.game_runner.player_inputs[PlayerInput.ESCAPE]:
+            if self.game_runner.player_inputs[PlayerInput.ESCAPE] or self.game_runner.player_inputs[PlayerInput.START]:
                 self.accepting_inputs = False
                 self.is_updating      = False
                 self.is_drawing       = False
@@ -25,6 +25,7 @@ class PauseMenu(GameState):
                 self.game_runner.states[GameStateNum.GAME].is_updating      = True
                 self.game_runner.states[GameStateNum.GAME].is_drawing       = True
                 self.game_runner.player_inputs[PlayerInput.ESCAPE] = False  # clear keypress so other states don't use it
+                self.game_runner.player_inputs[PlayerInput.START]  = False
         #
         if self.is_updating:
             pass

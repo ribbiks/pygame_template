@@ -36,16 +36,16 @@ class InputManager:
                     all_inputs[PlayerInput.START] = True
                 if event.key == pg.K_TAB:
                     all_inputs[PlayerInput.SELECT] = True
-                if event.key == pg.K_w:
+                if event.key == pg.K_w or event.key == pg.K_UP:
                     all_inputs[PlayerInput.BUTTON_UP] = True
                     self.held_inputs[PlayerInput.BUTTON_UP] = True
-                if event.key == pg.K_a:
+                if event.key == pg.K_a or event.key == pg.K_LEFT:
                     all_inputs[PlayerInput.BUTTON_LEFT] = True
                     self.held_inputs[PlayerInput.BUTTON_LEFT] = True
-                if event.key == pg.K_s:
+                if event.key == pg.K_s or event.key == pg.K_DOWN:
                     all_inputs[PlayerInput.BUTTON_DOWN] = True
                     self.held_inputs[PlayerInput.BUTTON_DOWN] = True
-                if event.key == pg.K_d:
+                if event.key == pg.K_d or event.key == pg.K_RIGHT:
                     all_inputs[PlayerInput.BUTTON_RIGHT] = True
                     self.held_inputs[PlayerInput.BUTTON_RIGHT] = True
                 if event.key == pg.K_SPACE:
@@ -56,13 +56,13 @@ class InputManager:
                     all_inputs[PlayerInput.BUTTON_Y] = True
             #
             elif event.type == pg.KEYUP:
-                if event.key == pg.K_w:
+                if event.key == pg.K_w or event.key == pg.K_UP:
                     self.held_inputs[PlayerInput.BUTTON_UP] = False
-                if event.key == pg.K_a:
+                if event.key == pg.K_a or event.key == pg.K_LEFT:
                     self.held_inputs[PlayerInput.BUTTON_LEFT] = False
-                if event.key == pg.K_s:
+                if event.key == pg.K_s or event.key == pg.K_DOWN:
                     self.held_inputs[PlayerInput.BUTTON_DOWN] = False
-                if event.key == pg.K_d:
+                if event.key == pg.K_d or event.key == pg.K_RIGHT:
                     self.held_inputs[PlayerInput.BUTTON_RIGHT] = False
             #
             elif event.type == pg.MOUSEBUTTONDOWN:
